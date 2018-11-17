@@ -2,44 +2,25 @@
 class ControllerExtensionModuleMybuzz extends Controller {
     private $error = array(); // This is used to set the errors, if any.
  
-    protected function jobTables()
+    protected function articleTables()
     {
         // create table
-        $jobsT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "jobs'");
-        if(!$jobsT->num_rows) {
-            $query = "CREATE TABLE ".DB_PREFIX."jobs (
-                      job_id int(11) AUTO_INCREMENT,
-                      ref_id varchar(50) NOT NULL,
-                      business varchar(50) NOT NULL,
-                      position varchar(50) NOT NULL,
-                      description varchar(200) NOT NULL,
-                      requirements varchar(200) NOT NULL,
-                      deadline varchar(20) NOT NULL,
+        $articlesT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "articles'");
+        if(!$articlesT->num_rows) {
+            $query = "CREATE TABLE ".DB_PREFIX."articles (
+                      id int(11) AUTO_INCREMENT,
+                      title varchar(50) NOT NULL,
+                      content varchar(200) NOT NULL,
+                      date_posted varchar(20) NOT NULL,
                       status int,
-                      PRIMARY KEY  (job_id)
+                      PRIMARY KEY  (id)
                       )";
             if(!$this->db->query($query)) {
-                error_log('jobs table creation failed');
-                $this->error['code'] = 'jobs table creation failed';
+                error_log('articles table creation failed');
+                $this->error['code'] = 'articles table creation failed';
             }
         }
         
-        $appsT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "job_applications'");
-        if(!$appsT->num_rows) {
-            $query = "CREATE TABLE ".DB_PREFIX."job_applications (
-                      application_id int(11) AUTO_INCREMENT,
-                      job_id int(5) NOT NULL,
-                      resume varchar(100) NOT NULL,
-                      cover varchar(200) NOT NULL,
-                      application_date varchar(200) NOT NULL,
-                      stages varchar(200) NOT NULL,
-                      PRIMARY KEY  (application_id)
-                      )";
-            if(!$this->db->query($query)) {
-                error_log('job_applications table creation failed');
-                $this->error['code'] = 'job_applications table creation failed';
-            }
-        }
         if (!$this->error) {
             return true;
         } else {
@@ -58,7 +39,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
         
         // do delete this job
         if (isset($this->request->get['remove_id'])) { 
-            $this->deleteJob();
+            $this->deleteArticle();
         }
 
         if (isset($this->request->get['module_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
@@ -69,18 +50,18 @@ class ControllerExtensionModuleMybuzz extends Controller {
             // Parse all the coming data to Setting Model to save it in database.
             $module_info = $this->model_setting_module->getModule($this->request->get['module_id']);
 
-            $ljsettings = array();
-            $ljsettings['status']    = $this->request->post['status'];
-            $ljsettings['limit']     = $this->request->post['limit'];
-            $ljsettings['name']                     = $this->request->post['name'];
+            $settings = array();
+            $settings['status']    = $this->request->post['status'];
+            $settings['limit']     = $this->request->post['limit'];
+            $settings['name']      = $this->request->post['name'];
             
             if (!isset($this->request->get['module_id'])) {
-                $this->model_setting_module->addModule('mybuzz', $ljsettings);
+                $this->model_setting_module->addModule('mybuzz', $settings);
             } else {
-                $this->model_setting_module->editModule($this->request->get['module_id'], $ljsettings);
+                $this->model_setting_module->editModule($this->request->get['module_id'], $settings);
             }
 
-            $status = $this->saveJobs();
+            $status = $this->saveArticles();
             $data['jstatus'] = json_encode($status);
             // To display the success text on data save
             $this->session->data['success'] = $this->language->get('text_success');
@@ -189,13 +170,13 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $data['status'] = '';
         }
 
-        // list jobs
-        $data['totaljobs'] = 0;
-        $data['jobs'] = null;
-        if($this->jobTables()) {
-            $jobs = $this->db->query('SELECT * FROM '.DB_PREFIX.'jobs');
-            $data['jobs'] = $jobs->rows;
-            $data['totaljobs'] = count($data['jobs']);
+        // list articles
+        $data['totalarticles'] = 0;
+        $data['articles'] = null;
+        if($this->articclesTable()) {
+            $articles = $this->db->query('SELECT * FROM '.DB_PREFIX.'articles');
+            $data['articles'] = $articles->rows;
+            $data['totalarticles'] = count($data['articles']);
         }
 
         $data['header'] = $this->load->controller('common/header');
@@ -206,58 +187,58 @@ class ControllerExtensionModuleMybuzz extends Controller {
 
     }
     // delete job
-    protected function deleteJob()
+    protected function deleteArticle()
     {
         if (isset($this->request->get['remove_id'])) {
-            $job_id = $this->request->get['remove_id'];
-            $delJob = $this->db->query("DELETE FROM ".DB_PREFIX."jobs WHERE job_id = '".(int)$job_id."'");
-            if($delJob){
-                $this->session->data['success'] = 'Job removed successfully';
+            $id = $this->request->get['remove_id'];
+            $delArticle = $this->db->query("DELETE FROM ".DB_PREFIX."articles WHERE id = '".(int)$id."'");
+            if($delArticle){
+                $this->session->data['success'] = 'Article removed successfully';
             } else {
-                $this->session->data['success'] = 'Job not removed';
+                $this->session->data['success'] = 'Article not removed';
             }
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
     }
 
     // save to db
-    protected function saveJobs()
+    protected function saveArticles()
     {
         if (isset($this->request->post['mybuzz_text_field'])) {
-            $jobs   = array();
-            $jobs['status'] = '';
+            $articles   = array();
+            $articles['status'] = '';
             $count  = count($_POST['mybuzz_text_field']);
             for ($i=0; $i < $count; $i++):
-                $jobs['mybuzz_text_field'][$i]        = $_POST['mybuzz_text_field'][$i];
-                $jobs['mybuzz_enabled_field'][$i]      = $_POST['mybuzz_enabled_field'][$i];
-                $jobs['mybuzz_business_field'][$i]    = $_POST['mybuzz_business_field'][$i];
-                $jobs['mybuzz_position_field'][$i]    = $_POST['mybuzz_position_field'][$i];
-                $jobs['mybuzz_description_field'][$i] = $_POST['mybuzz_description_field'][$i];
-                $jobs['mybuzz_requirements_field'][$i]    = $_POST['mybuzz_requirements_field'][$i];
-                $jobs['mybuzz_deadline_field'][$i]        = $_POST['mybuzz_deadline_field'][$i];
-                $jobs['job_id'][$i]                         = isset($_POST['job_id'][$i]) ? $_POST['job_id'][$i] : null;
-                $jobs['created_at'][$i]                     = date('d-m-y h:i', time());
+                $articles['mybuzz_text_field'][$i]          = $_POST['mybuzz_text_field'][$i];
+                $articles['mybuzz_enabled_field'][$i]       = $_POST['mybuzz_enabled_field'][$i];
+                $articles['mybuzz_business_field'][$i]      = $_POST['mybuzz_business_field'][$i];
+                $articles['mybuzz_position_field'][$i]      = $_POST['mybuzz_position_field'][$i];
+                $articles['mybuzz_description_field'][$i]   = $_POST['mybuzz_description_field'][$i];
+                $articles['mybuzz_requirements_field'][$i]  = $_POST['mybuzz_requirements_field'][$i];
+                $articles['mybuzz_deadline_field'][$i]      = $_POST['mybuzz_deadline_field'][$i];
+                $articles['id'][$i]                         = isset($_POST['id'][$i]) ? $_POST['id'][$i] : null;
+                $articles['created_at'][$i]                 = date('d-m-y h:i', time());
                 // if ref exists
-                $withRef = $this->db->query("SELECT * FROM " . DB_PREFIX . "jobs WHERE ref_id = '" . $this->db->escape($jobs['mybuzz_text_field'][$i])."'");
+                $withRef = $this->db->query("SELECT * FROM " . DB_PREFIX . "articles WHERE id = '" . $this->db->escape($articles['mybuzz_text_field'][$i])."'");
                 if($withRef->rows) {
                     // update
-                    $jobs['status'][] = "REF ID ". $jobs['mybuzz_text_field'][$i]." exists, try update";
-                    if($this->db->query("UPDATE " . DB_PREFIX . "jobs SET `business` = '" . $this->db->escape($jobs['mybuzz_business_field'][$i]) . "', `status` = '" . $this->db->escape($jobs['mybuzz_enabled_field'][$i]) . "', `position` = '" . $this->db->escape($jobs['mybuzz_position_field'][$i]) . "', `description` = '" . $this->db->escape($jobs['mybuzz_description_field'][$i]) . "', `requirements` = '" . $this->db->escape($jobs['mybuzz_requirements_field'][$i]) . "', `ref_id` = '" . $this->db->escape($jobs['mybuzz_text_field'][$i]) . "', `deadline` = '" . $this->db->escape($jobs['mybuzz_deadline_field'][$i]) . "' WHERE job_id = '" . $jobs['job_id'][$i] . "'")) {
-                        $jobs['status'][] = "Job with REF ID ". $jobs['mybuzz_text_field'][$i]." updated successfully";
+                    $articles['status'][] = "REF ID ". $articles['mybuzz_text_field'][$i]." exists, try update";
+                    if($this->db->query("UPDATE " . DB_PREFIX . "articles SET `business` = '" . $this->db->escape($articles['mybuzz_business_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `position` = '" . $this->db->escape($articles['mybuzz_position_field'][$i]) . "', `description` = '" . $this->db->escape($articles['mybuzz_description_field'][$i]) . "', `requirements` = '" . $this->db->escape($articles['mybuzz_requirements_field'][$i]) . "', `id` = '" . $this->db->escape($articles['mybuzz_text_field'][$i]) . "', `deadline` = '" . $this->db->escape($articles['mybuzz_deadline_field'][$i]) . "' WHERE id = '" . $articles['id'][$i] . "'")) {
+                        $articles['status'][] = "Article with REF ID ". $articles['mybuzz_text_field'][$i]." updated successfully";
                     } else {
-                        $jobs['status'][] = "Job with REF ID ". $jobs['mybuzz_text_field'][$i]." not updated";
+                        $articles['status'][] = "Article with REF ID ". $articles['mybuzz_text_field'][$i]." not updated";
                     }
                 } else {
-                    if(!$this->db->query("INSERT INTO " . DB_PREFIX . "jobs SET `created_at` = '" . $jobs['created_at'][$i] . "', `ref_id` = '" . $this->db->escape($jobs['mybuzz_text_field'][$i]) . "',  `business` = '" . $this->db->escape($jobs['mybuzz_business_field'][$i]) . "', `status` = '" . $this->db->escape($jobs['mybuzz_enabled_field'][$i]) . "', `position` = '" . $this->db->escape($jobs['mybuzz_position_field'][$i]) . "', `description` = '" . $this->db->escape($jobs['mybuzz_description_field'][$i]) . "', `requirements` = '" . $this->db->escape($jobs['mybuzz_requirements_field'][$i]) . "', `deadline` = '" . $this->db->escape($jobs['mybuzz_deadline_field'][$i]) . "'")) {
-                        error_log($jobs['mybuzz_text_field'][$i]. ' not saved ');
-                        $jobs['status'][] = $jobs['mybuzz_text_field'][$i]. ' not saved ';
+                    if(!$this->db->query("INSERT INTO " . DB_PREFIX . "articles SET `created_at` = '" . $articles['created_at'][$i] . "', `id` = '" . $this->db->escape($articles['mybuzz_text_field'][$i]) . "',  `business` = '" . $this->db->escape($articles['mybuzz_business_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `position` = '" . $this->db->escape($articles['mybuzz_position_field'][$i]) . "', `description` = '" . $this->db->escape($articles['mybuzz_description_field'][$i]) . "', `requirements` = '" . $this->db->escape($articles['mybuzz_requirements_field'][$i]) . "', `deadline` = '" . $this->db->escape($articles['mybuzz_deadline_field'][$i]) . "'")) {
+                        error_log($articles['mybuzz_text_field'][$i]. ' not saved ');
+                        $articles['status'][] = $articles['mybuzz_text_field'][$i]. ' not saved ';
                     } else {
-                        error_log($jobs['mybuzz_text_field'][$i]. ' well saved ');
-                        $jobs['status'][] = $jobs['mybuzz_text_field'][$i]. ' saved ';
+                        error_log($articles['mybuzz_text_field'][$i]. ' well saved ');
+                        $articles['status'][] = $articles['mybuzz_text_field'][$i]. ' saved ';
                     }
                 }
             endfor;
-            return $jobs['status'];
+            return $articles['status'];
         } else {
             return false;
         }
@@ -278,41 +259,18 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $this->error['code'] = $this->language->get('error_code');
         }
         // create table
-        $jobsT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "jobs'");
-        if(!$jobsT->num_rows) {
-            $query = "CREATE TABLE ".DB_PREFIX."jobs (
-                      job_id int(11) AUTO_INCREMENT,
-                      ref_id varchar(50) NOT NULL,
-                      business varchar(50) NOT NULL,
-                      position varchar(50) NOT NULL,
-                      description varchar(200) NOT NULL,
-                      requirements varchar(200) NOT NULL,
-                      deadline varchar(20) NOT NULL,
-                      status int,
-                      created_at varchar(20) NULL,
-                      PRIMARY KEY  (job_id)
-                      )";
+        $articlesT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "articles'");
+        if(!$articlesT->num_rows) {
+            $query = "CREATE TABLE ".DB_PREFIX."articles (
+              id int(11) AUTO_INCREMENT,
+              title varchar(50) NOT NULL,
+              content varchar(200) NOT NULL,
+              date_posted varchar(20) NOT NULL,
+              status int,
+              PRIMARY KEY  (id))";
             if(!$this->db->query($query)) {
-                error_log('jobs table creation failed');
-                $this->error['code'] = 'jobs table creation failed';
-            }
-        }
-        
-        $appsT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "job_applications'");
-        if(!$appsT->num_rows) {
-            $query = "CREATE TABLE ".DB_PREFIX."job_applications (
-                      application_id int(11) AUTO_INCREMENT,
-                      job_id int(5) NOT NULL,
-                      resume varchar(100) NOT NULL,
-                      cover varchar(200) NOT NULL,
-                      application_date varchar(200) NOT NULL,
-                      stages varchar(200) NOT NULL,
-                      created_at varchar(20) NULL,
-                      PRIMARY KEY  (application_id)
-                      )";
-            if(!$this->db->query($query)) {
-                error_log('job_applications table creation failed');
-                $this->error['code'] = 'job_applications table creation failed';
+                error_log('articles table creation failed');
+                $this->error['code'] = 'articles table creation failed';
             }
         }
         /* End Block*/
