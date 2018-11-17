@@ -1,3 +1,3 @@
 <?php
 // Heading
-$_['heading_title'] = 'Jobs List';
+$_['heading_title'] = 'My Buzz';
