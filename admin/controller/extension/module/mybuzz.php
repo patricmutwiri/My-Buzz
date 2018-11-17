@@ -1,7 +1,6 @@
 <?php
 class ControllerExtensionModuleMybuzz extends Controller {
-    private $error = array(); // This is used to set the errors, if any.
- 
+    private $error = array(); 
     protected function articleTables()
     {
         // create table
@@ -11,7 +10,8 @@ class ControllerExtensionModuleMybuzz extends Controller {
                       id int(11) AUTO_INCREMENT,
                       title varchar(50) NOT NULL,
                       content varchar(200) NOT NULL,
-                      date_posted varchar(20) NOT NULL,
+                      county varchar(10) NOT NULL,
+                      created_at varchar(20) NOT NULL,
                       status int,
                       PRIMARY KEY  (id)
                       )";
@@ -20,7 +20,6 @@ class ControllerExtensionModuleMybuzz extends Controller {
                 $this->error['code'] = 'articles table creation failed';
             }
         }
-        
         if (!$this->error) {
             return true;
         } else {
@@ -29,48 +28,32 @@ class ControllerExtensionModuleMybuzz extends Controller {
     }
 
     public function index() {
-        // Loading the language file of mybuzz
         $this->load->language('extension/module/mybuzz'); 
-     
-        // Set the title of the page to the heading title in the Language file i.e., Load Offers
         $this->document->setTitle($this->language->get('heading_title'));
-     
         $this->load->model('setting/module');
-        
-        // do delete this job
         if (isset($this->request->get['remove_id'])) { 
             $this->deleteArticle();
         }
-
         if (isset($this->request->get['module_id']) && ($this->request->server['REQUEST_METHOD'] != 'POST')) {
             $module_info = $this->model_setting_module->getModule($this->request->get['module_id']);
         }
-
         if (($this->request->server['REQUEST_METHOD'] == 'POST') && $this->validate()) {
-            // Parse all the coming data to Setting Model to save it in database.
             $module_info = $this->model_setting_module->getModule($this->request->get['module_id']);
-
             $settings = array();
             $settings['status']    = $this->request->post['status'];
             $settings['limit']     = $this->request->post['limit'];
             $settings['name']      = $this->request->post['name'];
-            
             if (!isset($this->request->get['module_id'])) {
                 $this->model_setting_module->addModule('mybuzz', $settings);
             } else {
                 $this->model_setting_module->editModule($this->request->get['module_id'], $settings);
             }
-
             $status = $this->saveArticles();
             $data['jstatus'] = json_encode($status);
-            // To display the success text on data save
             $this->session->data['success'] = $this->language->get('text_success');
-     
-            // Redirect to the Module Listing
             $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
      
-        // Assign the language data for parsing it to view
         $data['heading_title'] = $this->language->get('heading_title');
      
         $data['text_edit']    = $this->language->get('text_edit');
@@ -112,7 +95,6 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $data['error_code'] = '';
         }     
      
-        // Making of Breadcrumbs to be displayed on site
         $data['breadcrumbs'] = array();
         $data['breadcrumbs'][] = array(
             'text' => $this->language->get('text_home'),
@@ -212,11 +194,8 @@ class ControllerExtensionModuleMybuzz extends Controller {
                 $articles['mybuzz_text_field'][$i]          = $_POST['mybuzz_text_field'][$i];
                 $articles['mybuzz_enabled_field'][$i]       = $_POST['mybuzz_enabled_field'][$i];
                 $articles['mybuzz_business_field'][$i]      = $_POST['mybuzz_business_field'][$i];
-                $articles['mybuzz_position_field'][$i]      = $_POST['mybuzz_position_field'][$i];
-                $articles['mybuzz_description_field'][$i]   = $_POST['mybuzz_description_field'][$i];
-                $articles['mybuzz_requirements_field'][$i]  = $_POST['mybuzz_requirements_field'][$i];
-                $articles['mybuzz_deadline_field'][$i]      = $_POST['mybuzz_deadline_field'][$i];
-                $articles['id'][$i]                         = isset($_POST['id'][$i]) ? $_POST['id'][$i] : null;
+                $articles['mybuzz_position_field'][$i]      = $_POST['mybuzz_content_field'][$i];
+                $articles['mybuzz_description_field'][$i]   = $_POST['mybuzz_county_field'][$i];
                 $articles['created_at'][$i]                 = date('d-m-y h:i', time());
                 // if ref exists
                 $withRef = $this->db->query("SELECT * FROM " . DB_PREFIX . "articles WHERE id = '" . $this->db->escape($articles['mybuzz_text_field'][$i])."'");
@@ -245,16 +224,11 @@ class ControllerExtensionModuleMybuzz extends Controller {
         //save now
     }
 
-    /* Function that validates the data when Save Button is pressed */
-    protected function validate() {
- 
-        // Block to check the user permission to manipulate the module
+    protected function validate() { 
         if (!$this->user->hasPermission('modify', 'extension/module/mybuzz')) {
             $this->error['warning'] = $this->language->get('error_permission');
         }
  
-        // Block to check if the mybuzz_text_field is properly set to save into database,
-        // otherwise the error is returned
         if (!$this->request->post['mybuzz_text_field']) {
             $this->error['code'] = $this->language->get('error_code');
         }
@@ -262,19 +236,19 @@ class ControllerExtensionModuleMybuzz extends Controller {
         $articlesT = $this->db->query("SHOW TABLES LIKE '" . DB_PREFIX . "articles'");
         if(!$articlesT->num_rows) {
             $query = "CREATE TABLE ".DB_PREFIX."articles (
-              id int(11) AUTO_INCREMENT,
-              title varchar(50) NOT NULL,
-              content varchar(200) NOT NULL,
-              date_posted varchar(20) NOT NULL,
-              status int,
-              PRIMARY KEY  (id))";
+                  id int(11) AUTO_INCREMENT,
+                  title varchar(50) NOT NULL,
+                  content varchar(200) NOT NULL,
+                  county varchar(10) NOT NULL,
+                  created_at varchar(20) NOT NULL,
+                  status int,
+                  PRIMARY KEY  (id)
+                  )";
             if(!$this->db->query($query)) {
                 error_log('articles table creation failed');
                 $this->error['code'] = 'articles table creation failed';
             }
         }
-        /* End Block*/
-        // Block returns true if no error is found, else false if any error detected
         if (!$this->error) {
             return true;
         } else {

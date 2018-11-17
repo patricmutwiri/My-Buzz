@@ -5,13 +5,13 @@ class ControllerExtensionModuleMybuzz extends Controller {
         $limit = $setting['limit'];
         $status = $setting['status'];
         if(!$status) {
-            echo 'jobs not enabled';
+            echo 'Buzz not available';
         } else {
-            $data['jobs'] = array();
+            $data['articles'] = array();
             // query 
-            $query = $this->db->query("SELECT * FROM ".DB_PREFIX."jobs WHERE status=1");
-            $jobs = $query->rows;
-            $data['jobs'] = $jobs;
+            $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1");
+            $articles = $query->rows;
+            $data['articles'] = $articles;
             //json
             if(isset($this->request->get['json'])) {
                 if($this->request->get['json'] == 'patricks') { 
