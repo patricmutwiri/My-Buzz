@@ -1,15 +1,12 @@
-# Load Job offers
+# What's Buzzing
 
-Load a list of job opportunities from the database.
+Load a list of articles from the database.
 
-## Loads
+## Loads Articles based on counties
 
-- Position.
-- Ref. Number
-- Business Name.
-- Description.
-- Requirements
-- Deadline
+- Title.
+- Date posted
+- Content.
 - Status
 
 >> get in touch if installation becomes rocky

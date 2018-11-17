@@ -82,45 +82,45 @@
           {% for job in jobs %}
           <div class="job-body jobs">
             <div class="form-group required">
-              <label class="col-sm-2 control-label" for="textarea-loadjobs_text_field">{{ entry_code }}</label>
+              <label class="col-sm-2 control-label" for="textarea-mybuzz_text_field">{{ entry_code }}</label>
               <div class="col-sm-10">
-                <input type="text" name="loadjobs_text_field[]" data-id="input-reference" class="form-control" value="{{ job.ref_id }}" />
+                <input type="text" name="mybuzz_text_field[]" data-id="input-reference" class="form-control" value="{{ job.ref_id }}" />
                 {% if error_code %}
                 <div class="text-danger">{{ error_code }}</div>
                 {% endif %}
               </div>
             </div>
             <div class="form-group required">
-              <label class="col-sm-2 control-label" for="textarea-loadjobs_business_field">{{ entry_business }}</label>
+              <label class="col-sm-2 control-label" for="textarea-mybuzz_business_field">{{ entry_business }}</label>
               <div class="col-sm-10">
-                <input type="text" name="loadjobs_business_field[]" data-id="input-business" class="form-control" value="{{ job.business }}" />
+                <input type="text" name="mybuzz_business_field[]" data-id="input-business" class="form-control" value="{{ job.business }}" />
                 {% if error_code %}
                 <div class="text-danger">{{ error_code }}</div>
                 {% endif %}
               </div>
             </div>
             <div class="form-group required">
-              <label class="col-sm-2 control-label" for="textarea-loadjobs_position_field">{{ entry_position }}</label>
+              <label class="col-sm-2 control-label" for="textarea-mybuzz_position_field">{{ entry_position }}</label>
               <div class="col-sm-10">
-                <input type="text" name="loadjobs_position_field[]" data-id="input-position" class="form-control" value="{{ job.position }}" />
+                <input type="text" name="mybuzz_position_field[]" data-id="input-position" class="form-control" value="{{ job.position }}" />
                 {% if error_code %}
                 <div class="text-danger">{{ error_code }}</div>
                 {% endif %}
               </div>
             </div>
             <div class="form-group required">
-              <label class="col-sm-2 control-label" for="textarea-loadjobs_description_field">{{ entry_description }}</label>
+              <label class="col-sm-2 control-label" for="textarea-mybuzz_description_field">{{ entry_description }}</label>
               <div class="col-sm-10">
-                <textarea name="loadjobs_description_field[]" data-id="input-description" class="form-control">{{ job.description }}</textarea>
+                <textarea name="mybuzz_description_field[]" data-id="input-description" class="form-control">{{ job.description }}</textarea>
                 {% if error_code %}
                 <div class="text-danger">{{ error_code }}</div>
                 {% endif %}
               </div>
             </div>
             <div class="form-group required">
-              <label class="col-sm-2 control-label" for="textarea-loadjobs_requirements_field">{{ entry_requirements }}</label>
+              <label class="col-sm-2 control-label" for="textarea-mybuzz_requirements_field">{{ entry_requirements }}</label>
               <div class="col-sm-10">
-                <textarea name="loadjobs_requirements_field[]" data-id="input-requirements" class="form-control">{{ job.requirements }}</textarea>
+                <textarea name="mybuzz_requirements_field[]" data-id="input-requirements" class="form-control">{{ job.requirements }}</textarea>
                 {% if error_code %}
                   <div class="text-danger">{{ error_code }}</div>
                 {% endif %}
@@ -128,9 +128,9 @@
             </div>
 
             <div class="form-group required">
-              <label class="col-sm-2 control-label" for="textarea-loadjobs_deadline_field">{{ entry_deadline }}</label>
+              <label class="col-sm-2 control-label" for="textarea-mybuzz_deadline_field">{{ entry_deadline }}</label>
               <div class="col-sm-10">
-                <input type="text" name="loadjobs_deadline_field[]" data-id="input-deadline" class="form-control" value="{{ job.deadline }}" />
+                <input type="text" name="mybuzz_deadline_field[]" data-id="input-deadline" class="form-control" value="{{ job.deadline }}" />
                 {% if error_code %}
                 <div class="text-danger">{{ error_code }}</div>
                 {% endif %}
@@ -139,7 +139,7 @@
             <div class="form-group">
               <label class="col-sm-2 control-label" for="input-enabled">{{ entry_status }}</label>
               <div class="col-sm-10">
-                <select name="loadjobs_enabled_field[]" data-id="input-enabled" class="form-control">
+                <select name="mybuzz_enabled_field[]" data-id="input-enabled" class="form-control">
                   {% if job.status %}
                     <option value="1" selected="selected">{{ text_enabled }}</option>
                     <option value="0">{{ text_disabled }}</option>

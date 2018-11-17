@@ -1,7 +1,7 @@
 <?php
-class ControllerExtensionModuleLoadjobs extends Controller {
+class ControllerExtensionModuleMybuzz extends Controller {
     public function index($setting) {
-        $this->load->language('extension/module/loadjobs');
+        $this->load->language('extension/module/mybuzz');
         $limit = $setting['limit'];
         $status = $setting['status'];
         if(!$status) {
@@ -18,7 +18,7 @@ class ControllerExtensionModuleLoadjobs extends Controller {
                     echo json_encode($data);
                 }
             } else {
-                return $this->load->view('extension/module/loadjobs', $data);
+                return $this->load->view('extension/module/mybuzz', $data);
             }
         }
     }
