@@ -157,7 +157,7 @@
             </div>
             {% if article.id %}
               <div class="form-group col-xs-12 remove-article">
-                <a href="{{ del_url }}&remove_id={{ article.id }}" data-id="removearticle" class="col-xs-3 btn btn-danger btn-primary">&nbsp;<i class="fa fa-trash fw"></i>&nbsp;Delete Article</a>
+                <a href="{{ del_url }}&module_id={{ module_id }}&remove_id={{ article.id }}" data-id="removearticle" class="col-xs-3 btn btn-danger btn-primary">&nbsp;<i class="fa fa-trash fw"></i>&nbsp;Delete Article</a>
               </div>
               <hr/>
             {% endif %}

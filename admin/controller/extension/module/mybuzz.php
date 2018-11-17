@@ -119,6 +119,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
         }
         
         $data['del_url'] = $this->url->link('extension/module/mybuzz', 'user_token=' . $this->session->data['user_token'], 'SSL');
+        $data['module_id'] = $this->request->get['module_id'];
         
         if (!isset($this->request->get['module_id'])) {
             $data['action'] = $this->url->link('extension/module/mybuzz', 'user_token=' . $this->session->data['user_token'], true);
@@ -185,7 +186,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
             } else {
                 $this->session->data['success'] = 'Article not removed';
             }
-            $this->response->redirect($this->url->link('marketplace/extension', 'user_token=' . $this->session->data['user_token'] . '&type=module', true));
+            $this->response->redirect($this->url->link('marketplace/extension', 'module_id='.$_GET['module_id'].'&user_token=' . $this->session->data['user_token'] . '&type=module', true));
         }
     }
 
