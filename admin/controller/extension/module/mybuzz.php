@@ -12,6 +12,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
                       content varchar(200) NOT NULL,
                       county varchar(10) NOT NULL,
                       created_at varchar(20) NOT NULL,
+                      updated_at varchar(20),
                       status int,
                       PRIMARY KEY  (id)
                       )";
@@ -162,7 +163,12 @@ class ControllerExtensionModuleMybuzz extends Controller {
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
-
+        $counties = $this->db->query("SELECT * FROM `wwvc_zone` WHERE `country_id` = 110"); //kenya
+        if($counties->num_rows) {
+            $data['counties'] = $counties;
+        } else {
+            $data['counties'] = 0;
+        }
         $this->response->setOutput($this->load->view('extension/module/mybuzz', $data));
 
     }
@@ -184,34 +190,33 @@ class ControllerExtensionModuleMybuzz extends Controller {
     // save to db
     protected function saveArticles()
     {
-        if (isset($this->request->post['mybuzz_text_field'])) {
+        if (isset($this->request->post['mybuzz_title_field'])) {
             $articles   = array();
             $articles['status'] = '';
-            $count  = count($_POST['mybuzz_text_field']);
+            $count  = count($_POST['mybuzz_title_field']);
             for ($i=0; $i < $count; $i++):
-                $articles['mybuzz_text_field'][$i]          = $_POST['mybuzz_text_field'][$i];
+                $articles['mybuzz_title_field'][$i]         = $_POST['mybuzz_title_field'][$i];
+                $articles['mybuzz_content_field'][$i]       = $_POST['mybuzz_content_field'][$i];
+                $articles['mybuzz_county_field'][$i]        = $_POST['mybuzz_county_field'][$i];
                 $articles['mybuzz_enabled_field'][$i]       = $_POST['mybuzz_enabled_field'][$i];
-                $articles['mybuzz_business_field'][$i]      = $_POST['mybuzz_business_field'][$i];
-                $articles['mybuzz_position_field'][$i]      = $_POST['mybuzz_content_field'][$i];
-                $articles['mybuzz_description_field'][$i]   = $_POST['mybuzz_county_field'][$i];
-                $articles['created_at'][$i]                 = date('d-m-y h:i', time());
-                // if ref exists
-                $withRef = $this->db->query("SELECT * FROM " . DB_PREFIX . "articles WHERE id = '" . $this->db->escape($articles['mybuzz_text_field'][$i])."'");
-                if($withRef->rows) {
+                $articles['mybuzz_created_at_field'][$i]    = date('d-m-y H:i', strtotime($_POST['mybuzz_created_at_field'][$i]));
+                // If title exists
+                $thisId = $this->db->query("SELECT * FROM " . DB_PREFIX . "articles WHERE id = '" . $this->db->escape($articles['mybuzz_id_field'][$i])."'");
+                if($thisId->rows) {
                     // update
-                    $articles['status'][] = "REF ID ". $articles['mybuzz_text_field'][$i]." exists, try update";
-                    if($this->db->query("UPDATE " . DB_PREFIX . "articles SET `business` = '" . $this->db->escape($articles['mybuzz_business_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `position` = '" . $this->db->escape($articles['mybuzz_position_field'][$i]) . "', `description` = '" . $this->db->escape($articles['mybuzz_description_field'][$i]) . "', `requirements` = '" . $this->db->escape($articles['mybuzz_requirements_field'][$i]) . "', `id` = '" . $this->db->escape($articles['mybuzz_text_field'][$i]) . "', `deadline` = '" . $this->db->escape($articles['mybuzz_deadline_field'][$i]) . "' WHERE id = '" . $articles['id'][$i] . "'")) {
-                        $articles['status'][] = "Article with REF ID ". $articles['mybuzz_text_field'][$i]." updated successfully";
+                    $articles['status'][] = "Title ". $articles['mybuzz_title_field'][$i]." exists, try update";
+                    if($this->db->query("UPDATE " . DB_PREFIX . "articles SET `created_at` = '" . $this->db->escape($articles['mybuzz_created_at_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `content` = '" . $this->db->escape($articles['mybuzz_content_field'][$i]) . "', `title` = '" . $this->db->escape($articles['mybuzz_title_field'][$i]) . "', `updated_at` = '" . $this->db->escape(date('d-m-y H:i', time())) . "' WHERE id = '" . $this->db->escape($articles['mybuzz_id_field'][$i]) . "'")) {
+                        $articles['status'][] = "Article with Title ". $articles['mybuzz_title_field'][$i]." updated successfully";
                     } else {
-                        $articles['status'][] = "Article with REF ID ". $articles['mybuzz_text_field'][$i]." not updated";
+                        $articles['status'][] = "Article with Title ". $articles['mybuzz_title_field'][$i]." not updated";
                     }
                 } else {
-                    if(!$this->db->query("INSERT INTO " . DB_PREFIX . "articles SET `created_at` = '" . $articles['created_at'][$i] . "', `id` = '" . $this->db->escape($articles['mybuzz_text_field'][$i]) . "',  `business` = '" . $this->db->escape($articles['mybuzz_business_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `position` = '" . $this->db->escape($articles['mybuzz_position_field'][$i]) . "', `description` = '" . $this->db->escape($articles['mybuzz_description_field'][$i]) . "', `requirements` = '" . $this->db->escape($articles['mybuzz_requirements_field'][$i]) . "', `deadline` = '" . $this->db->escape($articles['mybuzz_deadline_field'][$i]) . "'")) {
-                        error_log($articles['mybuzz_text_field'][$i]. ' not saved ');
-                        $articles['status'][] = $articles['mybuzz_text_field'][$i]. ' not saved ';
+                    if(!$this->db->query("INSERT INTO " . DB_PREFIX . "articles SET `created_at` = '" . $this->db->escape($articles['mybuzz_created_at_field'][$i]) . "', `title` = '" . $this->db->escape($articles['mybuzz_title_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `content` = '" . $this->db->escape($articles['mybuzz_content_field'][$i]) . "', `county` = '" . $this->db->escape($articles['mybuzz_county_field'][$i]) . "', `created_at` = '" . $this->db->escape($articles['mybuzz_created_at_field'][$i]) . "'")) {
+                        error_log($articles['mybuzz_title_field'][$i]. ' not saved ');
+                        $articles['status'][] = $articles['mybuzz_title_field'][$i]. ' not saved';
                     } else {
-                        error_log($articles['mybuzz_text_field'][$i]. ' well saved ');
-                        $articles['status'][] = $articles['mybuzz_text_field'][$i]. ' saved ';
+                        error_log($articles['mybuzz_title_field'][$i]. ' well saved ');
+                        $articles['status'][] = $articles['mybuzz_title_field'][$i]. ' saved';
                     }
                 }
             endfor;
@@ -227,7 +232,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $this->error['warning'] = $this->language->get('error_permission');
         }
  
-        if (!$this->request->post['mybuzz_text_field']) {
+        if (!$this->request->post['mybuzz_title_field']) {
             $this->error['code'] = $this->language->get('error_code');
         }
         // create table

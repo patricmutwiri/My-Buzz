@@ -102,9 +102,19 @@
             <div class="form-group required">
               <label class="col-sm-2 control-label" for="mybuzz_county_field">{{ entry_county }}</label>
               <div class="col-sm-10">
-                <input type="text" name="mybuzz_county_field[]" data-id="input-county" class="form-control" value="{{ article.county }}" />
-                {% if error_code %}
-                <div class="text-danger">{{ error_code }}</div>
+                <select name="mybuzz_county_field[]" data-id="input-county" class="form-control">
+                {% if counties %}
+                  {% for county in counties %}
+                    {% if article.county == county.county_id %}
+                      <option value="{{ county.county_id }}" selected="selected">{{ county.name }}</option>
+                    {% else %}
+                      <option value="{{ county.county_id }}">{{ county.name }}</option>
+                    {% endif %}
+                  {% endfor %}
+                  </select>
+                  {% if error_code %}
+                    <div class="text-danger">{{ error_code }}</div>
+                  {% endif %}
                 {% endif %}
               </div>
             </div>
@@ -139,7 +149,7 @@
             {% endif %}
           </div>
             {% if article.id %}
-              <input type="hidden" name="id[]" value="{{ article.id }}">
+              <input type="hidden" name="mybuzz_id_field[]" value="{{ article.id }}">
             {% endif %}
           {% endfor %}
           </div>
