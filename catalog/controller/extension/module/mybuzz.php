@@ -8,9 +8,14 @@ class ControllerExtensionModuleMybuzz extends Controller {
             echo 'Buzz not available';
         } else {
             $data['articles'] = array();
+            $articles = null;
+            $data['totalarticles'] = 0;
             // query 
-            $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1");
-            $articles = $query->rows;
+            $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1 ORDER BY created_at DESC");
+            if($query->num_rows) {
+                $articles = $query->rows;
+            }
+            $data['totalarticles'] = $query->num_rows;
             // filter
             $data['articles'] = $articles;
             //json

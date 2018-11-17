@@ -197,12 +197,12 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $articles['status'] = '';
             $count  = count($_POST['mybuzz_title_field']);
             for ($i=0; $i < $count; $i++):
-                $datetime = isset($_POST['mybuzz_created_at_field'][$i]) ? $_POST['mybuzz_created_at_field'][$i] : '';
+                $datetime = isset($_POST['mybuzz_created_at_field'][$i]) ? $_POST['mybuzz_created_at_field'][$i] : date('d-m-Y H:i:s', time());
                 $articles['mybuzz_title_field'][$i]         = isset($_POST['mybuzz_title_field'][$i]) ? $_POST['mybuzz_title_field'][$i] : '';
                 $articles['mybuzz_content_field'][$i]       = isset($_POST['mybuzz_content_field'][$i]) ? $_POST['mybuzz_content_field'][$i] : '';
                 $articles['mybuzz_county_field'][$i]        = isset($_POST['mybuzz_county_field'][$i]) ? $_POST['mybuzz_county_field'][$i] : '';
                 $articles['mybuzz_enabled_field'][$i]       = isset($_POST['mybuzz_enabled_field'][$i]) ? $_POST['mybuzz_enabled_field'][$i] : '';
-                $articles['mybuzz_created_at_field'][$i]    = date('d-m-y H:i', strtotime($datetime));
+                $articles['mybuzz_created_at_field'][$i]    = date('d-m-Y H:i', strtotime($datetime));
                 // If title exists
                 $thisId = $this->db->query("SELECT * FROM " . DB_PREFIX . "articles WHERE id = '" . $this->db->escape($articles['mybuzz_id_field'][$i])."'");
                 if($thisId->rows) {
@@ -225,8 +225,6 @@ class ControllerExtensionModuleMybuzz extends Controller {
             endfor;
             return $articles['status'];
         } else {
-            // insert blanks if a new one
-
             return false;
         }
         //save now
