@@ -72,6 +72,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
         $data['entry_content'] = $this->language->get('entry_content');
         $data['entry_county'] = $this->language->get('entry_county');
         $data['entry_created_at'] = $this->language->get('entry_created_at');
+        $data['entry_updated_at'] = $this->language->get('entry_updated_at');
         $data['entry_status'] = $this->language->get('entry_status');
         $data['entry_sort_order'] = $this->language->get('entry_sort_order');
      
