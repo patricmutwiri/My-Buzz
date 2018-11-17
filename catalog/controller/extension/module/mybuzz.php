@@ -11,6 +11,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
             // query 
             $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1");
             $articles = $query->rows;
+            // filter
             $data['articles'] = $articles;
             //json
             if(isset($this->request->get['json'])) {

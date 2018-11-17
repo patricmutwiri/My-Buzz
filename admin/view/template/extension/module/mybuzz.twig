@@ -79,6 +79,15 @@
             </div>
           </div>
           <div class="col-xs-12 articleslist">
+            <div class="form-group init-title">
+              <label class="col-sm-2 control-label" for="mybuzz_title_field">{{ entry_title }}</label>
+              <div class="col-sm-10">
+                <input type="text" name="mybuzz_title_field[]" data-id="input-mybuzz_title_field" class="form-control" value="{{ article.title }}" />
+                {% if error_code %}
+                <div class="text-danger">{{ error_code }}</div>
+                {% endif %}
+              </div>
+            </div>
           {% for article in articles %}
           <div class="article-body articles">
             <div class="form-group required">

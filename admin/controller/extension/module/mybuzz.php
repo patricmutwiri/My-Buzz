@@ -196,11 +196,12 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $articles['status'] = '';
             $count  = count($_POST['mybuzz_title_field']);
             for ($i=0; $i < $count; $i++):
-                $articles['mybuzz_title_field'][$i]         = $_POST['mybuzz_title_field'][$i];
-                $articles['mybuzz_content_field'][$i]       = $_POST['mybuzz_content_field'][$i];
-                $articles['mybuzz_county_field'][$i]        = $_POST['mybuzz_county_field'][$i];
-                $articles['mybuzz_enabled_field'][$i]       = $_POST['mybuzz_enabled_field'][$i];
-                $articles['mybuzz_created_at_field'][$i]    = date('d-m-y H:i', strtotime($_POST['mybuzz_created_at_field'][$i]));
+                $datetime = isset($_POST['mybuzz_created_at_field'][$i]) ? $_POST['mybuzz_created_at_field'][$i] : '';
+                $articles['mybuzz_title_field'][$i]         = isset($_POST['mybuzz_title_field'][$i]) ? $_POST['mybuzz_title_field'][$i] : '';
+                $articles['mybuzz_content_field'][$i]       = isset($_POST['mybuzz_content_field'][$i]) ? $_POST['mybuzz_content_field'][$i] : '';
+                $articles['mybuzz_county_field'][$i]        = isset($_POST['mybuzz_county_field'][$i]) ? $_POST['mybuzz_county_field'][$i] : '';
+                $articles['mybuzz_enabled_field'][$i]       = isset($_POST['mybuzz_enabled_field'][$i]) ? $_POST['mybuzz_enabled_field'][$i] : '';
+                $articles['mybuzz_created_at_field'][$i]    = date('d-m-y H:i', strtotime($datetime));
                 // If title exists
                 $thisId = $this->db->query("SELECT * FROM " . DB_PREFIX . "articles WHERE id = '" . $this->db->escape($articles['mybuzz_id_field'][$i])."'");
                 if($thisId->rows) {
@@ -212,7 +213,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
                         $articles['status'][] = "Article with Title ". $articles['mybuzz_title_field'][$i]." not updated";
                     }
                 } else {
-                    if(!$this->db->query("INSERT INTO " . DB_PREFIX . "articles SET `created_at` = '" . $this->db->escape($articles['mybuzz_created_at_field'][$i]) . "', `title` = '" . $this->db->escape($articles['mybuzz_title_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `content` = '" . $this->db->escape($articles['mybuzz_content_field'][$i]) . "', `county` = '" . $this->db->escape($articles['mybuzz_county_field'][$i]) . "', `created_at` = '" . $this->db->escape($articles['mybuzz_created_at_field'][$i]) . "'")) {
+                    if(!$this->db->query("INSERT INTO " . DB_PREFIX . "articles SET `title` = '" . $this->db->escape($articles['mybuzz_title_field'][$i]) . "', `status` = '" . $this->db->escape($articles['mybuzz_enabled_field'][$i]) . "', `content` = '" . $this->db->escape($articles['mybuzz_content_field'][$i]) . "', `county` = '" . $this->db->escape($articles['mybuzz_county_field'][$i]) . "', `created_at` = '" . $this->db->escape($articles['mybuzz_created_at_field'][$i]) . "'")) {
                         error_log($articles['mybuzz_title_field'][$i]. ' not saved ');
                         $articles['status'][] = $articles['mybuzz_title_field'][$i]. ' not saved';
                     } else {
@@ -223,6 +224,8 @@ class ControllerExtensionModuleMybuzz extends Controller {
             endfor;
             return $articles['status'];
         } else {
+            // insert blanks if a new one
+
             return false;
         }
         //save now
