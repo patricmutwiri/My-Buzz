@@ -67,13 +67,11 @@ class ControllerExtensionModuleMybuzz extends Controller {
         $data['entry_code'] = $this->language->get('entry_code');
         $data['entry_limit'] = $this->language->get('entry_limit');
         $data['entry_layout'] = $this->language->get('entry_layout');
-        $data['entry_position'] = $this->language->get('entry_position');
+        $data['entry_title'] = $this->language->get('entry_title');
+        $data['entry_content'] = $this->language->get('entry_content');
+        $data['entry_county'] = $this->language->get('entry_county');
+        $data['entry_created_at'] = $this->language->get('entry_created_at');
         $data['entry_status'] = $this->language->get('entry_status');
-        $data['entry_business'] = $this->language->get('entry_business');
-        $data['entry_deadline'] = $this->language->get('entry_deadline');
-        $data['entry_description'] = $this->language->get('entry_description');
-        $data['entry_requirements'] = $this->language->get('entry_requirements');
-        $data['entry_position'] = $this->language->get('entry_position');
         $data['entry_sort_order'] = $this->language->get('entry_sort_order');
      
         $data['button_save'] = $this->language->get('button_save');
@@ -155,7 +153,7 @@ class ControllerExtensionModuleMybuzz extends Controller {
         // list articles
         $data['totalarticles'] = 0;
         $data['articles'] = null;
-        if($this->articclesTable()) {
+        if($this->articleTables()) {
             $articles = $this->db->query('SELECT * FROM '.DB_PREFIX.'articles');
             $data['articles'] = $articles->rows;
             $data['totalarticles'] = count($data['articles']);
