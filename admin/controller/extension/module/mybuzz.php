@@ -164,8 +164,9 @@ class ControllerExtensionModuleMybuzz extends Controller {
         $data['header'] = $this->load->controller('common/header');
         $data['column_left'] = $this->load->controller('common/column_left');
         $data['footer'] = $this->load->controller('common/footer');
-        $counties = $this->db->query("SELECT * FROM `wwvc_zone` WHERE `country_id` = 110"); //kenya
-        if($counties->num_rows) {
+        $countiesQ = $this->db->query("SELECT * FROM `wwvc_zone` WHERE `country_id` = 110"); //kenya
+        if($countiesQ->num_rows) {
+            $counties = $countiesQ->rows;
             $data['counties'] = $counties;
         } else {
             $data['counties'] = 0;
