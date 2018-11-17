@@ -189,8 +189,14 @@
 </div>
 <link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote.js"></script>
 <script type="text/javascript">
-  $( "input[data-id='input-created_at']" ).datepicker();
+  jQuery(function(){
+    $('textarea[data-id="input-content]').summernote({
+      airMode: true
+    });
+    $( "input[data-id='input-created_at']" ).datepicker();
+  });
   document.getElementById("newarticle").addEventListener('click',function(e){   
     var articles = document.getElementsByClassName('article-body');
     if(articles.length) {
