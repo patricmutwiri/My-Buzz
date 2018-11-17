@@ -179,7 +179,11 @@
   $( "input[data-id='input-created_at']" ).datepicker();
   document.getElementById("newarticle").addEventListener('click',function(e){   
     var articles = document.getElementsByClassName('article-body');
-    var i = articles.length - 1;
+    if(articles.length) {
+      var i = articles.length - 1;
+    } else {
+      var i = articles.length;
+    }
     var newrecord = articles[i];
     var newarticle = newrecord.cloneNode(true);
     document.getElementsByClassName('articleslist')[0].appendChild(newarticle);
