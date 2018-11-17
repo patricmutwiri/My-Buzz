@@ -10,13 +10,18 @@ class ControllerExtensionModuleMybuzz extends Controller {
             $data['articles'] = array();
             $articles = null;
             $data['totalarticles'] = 0;
-            // query 
-            $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1 ORDER BY created_at DESC");
+            // filter
+            if($this->customer->isLogged()) {
+                // get buzzing
+                $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1 AND county = ".$this->db->escape($this->customer->getCountyId())." ORDER BY created_at DESC");
+            } else {
+                // get all
+                $query = $this->db->query("SELECT * FROM ".DB_PREFIX."articles WHERE status=1 AND county = 0 ORDER BY created_at DESC");
+            }
             if($query->num_rows) {
                 $articles = $query->rows;
+                $data['totalarticles'] = $query->num_rows;
             }
-            $data['totalarticles'] = $query->num_rows;
-            // filter
             $data['articles'] = $articles;
             //json
             if(isset($this->request->get['json'])) {

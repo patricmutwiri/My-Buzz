@@ -33,15 +33,13 @@
 	    {% for article in articles %}
 	    	<h4 class="this-article ref-pos col-xs-12">{{ article.title }}</h4>
 		    <div class="this-article article-details col-xs-12">
-				<div class="col-xs-12 article-title">
-					<p>{{ article.title }}</p>
-				</div>
 				<div class="col-xs-12 content">
 					<p>{{ article.content }}</p>
 				</div>
 				<div class="col-xs-12 dates">
 					Created On: {{ article.created_at }}
 				</div>
+				<hr/>
 			</div>
 		{% endfor %}
 	</div>
