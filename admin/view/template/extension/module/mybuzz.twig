@@ -192,10 +192,8 @@
 <script src="http://cdnjs.cloudflare.com/ajax/libs/summernote/0.8.9/summernote.js"></script>
 <script type="text/javascript">
   jQuery(function(){
-    $('textarea[data-id="input-content]').summernote({
-      airMode: true
-    });
-    $("textarea[data-id='input-created_at']" ).datepicker();
+    $('textarea[data-id="input-content]').summernote();
+    $("input[data-id='input-created_at']").datepicker();
   });
   document.getElementById("newarticle").addEventListener('click',function(e){   
     var articles = document.getElementsByClassName('article-body');
